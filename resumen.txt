@@ -1,0 +1,109 @@
+================================================================================
+RESUMEN DE REFACTORIZACIÓN - PROYECTO IGLESIA ELIASISTA API
+================================================================================
+
+FECHA: 16/03/2026
+
+--------------------------------------------------------------------------------
+PROBLEMA ORIGINAL
+--------------------------------------------------------------------------------
+- 10 carpetas API separadas (apicoros, apidevocionario, apidulia, etc.)
+- Cada carpeta contenía un index.php con código redundante:
+  * Headers CORS repetidos
+  * Conexión a BD duplicada
+  * Lógica SQL casi idéntica
+  * Sin reutilización de código
+
+--------------------------------------------------------------------------------
+SOLUCIÓN IMPLEMENTADA
+--------------------------------------------------------------------------------
+
+1. ARCHIVO db.php (NUEVO)
+   - Ubicación: /db.php
+   - Clase Database con Singleton pattern
+   - Conexión centralizada a MySQL
+   - Métodos reutilizables: query(), fetchAll()
+   - Manejo de errores centralizado
+   - Configuración UTF-8
+
+2. ARCHIVO router.php (NUEVO)
+   - Ubicación: /router.php
+   - API REST unificada para todos los endpoints
+   - Métodos soportados: GET, POST, PUT, DELETE
+   - Endpoints disponibles:
+     * GET /router.php?endpoint=coros              -> Lista todos los coros
+     * GET /router.php?endpoint=coros&id=1         -> Consulta coro por ID
+     * POST /router.php?endpoint=coros             -> Crea nuevo coro
+     * PUT /router.php?endpoint=coros&id=1         -> Actualiza coro
+     * DELETE /router.php?endpoint=coros&id=1      -> Elimina coro
+   
+   Endpoints completos:
+   - coros, devocionarios, dulia, gacetas, hiperdulia, latria, 
+     predicas, eventos, oraciones
+
+3. CARPETAS ELIMINADAS (10 carpetas redundantes)
+   - api/
+   - apicoros/
+   - apidevocionario/
+   - apidulia/
+   - apigacetas/
+   - apihiperdulia/
+   - apilatria/
+   - apiprayer/
+   - apipredicas/
+   - apiyoutube/
+
+--------------------------------------------------------------------------------
+ESTRUCTURA FINAL
+--------------------------------------------------------------------------------
+
+raíz/
+├── db.php                 # Clase Database centralizada
+├── router.php             # API Router unificado
+├── conexion.php           # Archivo original (sin uso, se mantiene por compatibilidad)
+├── .gitignore
+├── eventos/               # Módulo de eventos (frontend)
+├── prayer/                # Módulo de oraciones (frontend)
+├── audios/                # Archivos de audio de coros, devocionarios, dulia, hiperdulia y latria
+├── cultos/                # Contenido de cultos
+├── devocionarios/         # Devocionarios
+├── dulia/                 # Contenido dulia
+├── gacetas/               # Gacetas
+├── images/                # Imágenes
+├── predicas/              # Prédicas
+
+--------------------------------------------------------------------------------
+EJEMPLOS DE USO
+--------------------------------------------------------------------------------
+
+# Obtener todos los coros
+GET http://localhost/router.php?endpoint=coros
+
+# Obtener un coro específico
+GET http://localhost/router.php?endpoint=coros&id=5
+
+# Crear un nuevo registro
+POST http://localhost/router.php?endpoint=coros
+Body: {"titulo": "Coro nuevo", "letra": "Letra del coro..."}
+
+# Actualizar registro
+PUT http://localhost/router.php?endpoint=coros&id=5
+Body: {"titulo": "Coro actualizado"}
+
+# Eliminar registro
+DELETE http://localhost/router.php?endpoint=coros&id=5
+
+--------------------------------------------------------------------------------
+MEJORAS AÑADIDAS
+--------------------------------------------------------------------------------
+- ✅ Código DRY (Don't Repeat Yourself)
+- ✅ Pattern Singleton para conexión BD
+- ✅ Soporte completo CRUD (Create, Read, Update, Delete)
+- ✅ Manejo de errores centralizado
+- ✅ Validación de entrada (sanitización)
+- ✅ Configuración UTF-8 unificada
+- ✅ API RESTful moderna
+- ✅ Reducción de ~450 líneas de código redundante
+- ✅ Fácil mantenimiento y escalabilidad
+
+================================================================================

@@ -1,0 +1,3 @@
+[04-Nov-2024 00:34:21 UTC] PHP Warning:  mysqli_connect(): (HY000/1045): Access denied for user 'root'@'localhost' (using password: NO) in /home/iglesiae/public_html/api/events/database.php on line 8
+[04-Nov-2024 00:34:21 UTC] PHP Warning:  mysqli_query() expects parameter 1 to be mysqli, bool given in /home/iglesiae/public_html/api/events/index.php on line 32
+[04-Nov-2024 00:34:21 UTC] PHP Warning:  mysqli_fetch_array() expects parameter 1 to be mysqli_result, null given in /home/iglesiae/public_html/api/events/index.php on line 34
