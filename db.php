@@ -84,6 +84,7 @@ function loadEnv(string $path): void
         if (count($parts) === 2) {
             $key = trim($parts[0]);
             $value = trim($parts[1]);
+            $GLOBALS['env'][$key] = $value;
             if (!array_key_exists($key, $_ENV) && !array_key_exists($key, $_SERVER)) {
                 putenv("$key=$value");
                 $_ENV[$key] = $value;

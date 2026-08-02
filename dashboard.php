@@ -182,6 +182,11 @@ $rol = $_SESSION['user_rol'];
 <a href="tabla.php?endpoint=latria">Ver Latria →</a>
                 </div>
                 <div class="card">
+                    <h3>❓ Quizzes</h3>
+                    <p>Cuestionarios semanales para la comunidad</p>
+                    <a href="quiz/index.php">Ver Quizzes →</a>
+                </div>
+                <div class="card">
                     <h3>⚙️ Administración</h3>
                     <p>Panel de administración</p>
                     <a href="usuarios.php">Gestionar Usuarios →</a>

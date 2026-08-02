@@ -1,8 +1,10 @@
 <?php
 
 require_once 'db.php';
+require_once 'helpers.php';
 
 setHeaders();
+checkApiRateLimit();
 
 $method = $_SERVER['REQUEST_METHOD'];
 $endpoint = $_GET['endpoint'] ?? '';
@@ -12,7 +14,7 @@ $apiKey = $_SERVER['HTTP_X_API_KEY'] ?? $_GET['api_key'] ?? '';
 function authenticateApiRequest(): void
 {
     $apiKey = $_SERVER['HTTP_X_API_KEY'] ?? $_GET['api_key'] ?? '';
-    $validApiKey = getenv('API_KEY') ?: '';
+    $validApiKey = getApiKey();
 
     if (empty($validApiKey)) {
         return;
@@ -37,7 +39,9 @@ $allowedTables = [
     'latria'         => 'latria',
     'predicas'       => 'predicas',
     'eventos'        => 'eventos',
-    'oraciones'      => 'oraciones'
+    'oraciones'      => 'oraciones',
+    'quizzes'        => 'quizzes',
+    'quiz_questions' => 'quiz_questions'
 ];
 
 $tableSchemas = [
@@ -50,6 +54,8 @@ $tableSchemas = [
     'predicas'       => ['title', 'description', 'url'],
     'eventos'        => ['invitation', 'title', 'date_event', 'hour_event', 'place', 'image_url'],
     'oraciones'      => ['title_pray', 'description_pray', 'subject_pray', 'pray_for', 'pray_to', 'date_pray', 'lyrics_pray'],
+    'quizzes'        => ['title', 'description', 'week_start', 'week_end', 'is_active'],
+    'quiz_questions' => ['quiz_id', 'question_text', 'option_a', 'option_b', 'option_c', 'option_d', 'correct_option', 'question_type', 'order_index'],
 ];
 
 $endpoint = strtolower($endpoint);
@@ -90,13 +96,19 @@ switch ($method) {
 
         $filtered = [];
         foreach ($validColumns as $col) {
-            $filtered[$col] = $input[$col] ?? '';
+            $val = $input[$col] ?? '';
+            $filtered[$col] = is_string($val) ? trim($val) : $val;
         }
         $columns = implode(', ', array_keys($filtered));
         $placeholders = implode(', ', array_fill(0, count($filtered), '?'));
         $types = str_repeat('s', count($filtered));
 
         $sql = "INSERT INTO `$table` ($columns) VALUES ($placeholders)";
+
+        if ($endpoint === 'quizzes' && !empty($filtered['is_active'])) {
+            $conn->query("UPDATE quizzes SET is_active = 0");
+        }
+
         $stmt = $conn->prepare($sql);
         $stmt->bind_param($types, ...array_values($filtered));
 
@@ -124,7 +136,8 @@ switch ($method) {
         $filtered = [];
         foreach ($validColumns as $col) {
             if (array_key_exists($col, $input)) {
-                $filtered[$col] = $input[$col];
+                $val = $input[$col];
+                $filtered[$col] = is_string($val) ? trim($val) : $val;
             }
         }
 
@@ -142,6 +155,11 @@ switch ($method) {
         $params[] = $id;
 
         $sql = "UPDATE `$table` SET " . implode(', ', $sets) . " WHERE id = ?";
+
+        if ($endpoint === 'quizzes' && isset($filtered['is_active']) && $filtered['is_active']) {
+            $conn->query("UPDATE quizzes SET is_active = 0");
+        }
+
         $stmt = $conn->prepare($sql);
         $stmt->bind_param($types, ...$params);
 

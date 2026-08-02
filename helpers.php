@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 function generateCsrfToken(): string
 {
@@ -58,6 +60,11 @@ function checkLoginRateLimit(): void
 function checkApiRateLimit(): void
 {
     checkRateLimit('api', 60, 60);
+}
+
+function getApiKey(): string
+{
+    return $GLOBALS['env']['API_KEY'] ?? '';
 }
 
 function requireAuth(): void

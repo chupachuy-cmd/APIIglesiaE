@@ -27,6 +27,9 @@
         <li class="nav-item">
           <a class="nav-link" href="addevents.php">Agregar evento</a>
         </li>
+        <li class="nav-item">
+          <a class="nav-link" href="../quiz/index.php">Quizzes</a>
+        </li>
       </ul>
     </div>
   </div>
